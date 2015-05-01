@@ -53,9 +53,25 @@ Recordmp3js
 - https://github.com/nusofthq/Recordmp3js
 
 
+Examples
+========================
+
+Capture audio from browser
+-------
+- http://webaudiodemos.appspot.com/AudioRecorder/ - this captures wav, but size is too big.
+- https://webaudiodemos.appspot.com/input/index.html
+ 
+
+Capture both video and audio from browser
+-------
+- http://www.html5rocks.com/en/tutorials/getusermedia/intro/
+
+
 More references
 =====================
 
 - http://www.jqueryrain.com/2013/10/best-jquery-webcam-plugin-example/
 - http://stackoverflow.com/questions/8587882/capture-audio-input-with-flash-or-html5
 - http://stackoverflow.com/questions/1318834/whats-the-status-of-the-html-5-video-tag-and-webcam-integration
+- http://www.webrtc.org/
+- http://www.html5rocks.com/en/tutorials/getusermedia/intro/
