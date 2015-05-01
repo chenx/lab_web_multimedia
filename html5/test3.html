@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="stuff, to, help, search, engines, not" name="keywords">
+<meta content="What this page is about." name="description">
+<meta content="Display Webcam Stream" name="title">
+<title>Display Webcam Stream</title>
+  
+<script type="text/javascript" src="../js/ajax/libs/jquery/1.4/jquery.min.js"></script>
+
+<style>
+#container {
+    margin: 0px auto;
+    width: 500px;
+    height: 375px;
+    border: 0px #333 solid;
+}
+
+body {
+    text-align: center;
+}
+</style>
+</head>
+  
+<body>
+<div style="text-align: left; ">
+Demonstrate:<br/>
+Capture video to canvas. Suppose to show dataURL upon clicking on canvas.
+But got security error again.<br/>
+Question is: if cannot get dataURl and send it away, what's the use of 
+repeat the same playback?<br/>
+
+See: 
+<br/>[1] http://appcropolis.com/blog/web-technology/using-html5-canvas-to-capture-frames-from-a-video/
+</div>
+
+<div id="container">
+<p>Video to use (press Play to start the demonstration):</p>
+<video id="video1" controls width="270">
+  <source src="http://www.w3schools.com/tags/mov_bbb.mp4" type='video/mp4' />
+  <source src="http://www.w3schools.com/tags/mov_bbb.ogg" type='video/ogg' />
+  <source src="http://www.w3schools.com/tags/mov_bbb.webm" type='video/webm' />
+</video>
+
+    <button onclick="shoot()" style="width: 64px;border: solid 2px #ccc;">Capture</button><br/>
+    <div id="output" style="display: inline-block; top: 4px; position: relative ;border: dotted 1px #ccc; padding: 2px;"></div>
+
+
+<script>
+
+var videoId = 'video1';
+var scaleFactor = 0.25;
+var snapshots = [];
+ 
+/**
+ * Captures a image frame from the provided video element.
+ *
+ * @param {Video} video HTML5 video element from where the image frame will be captured.
+ * @param {Number} scaleFactor Factor to scale the canvas element that will be return. This is an optional parameter.
+ *
+ * @return {Canvas}
+ */
+function capture(video, scaleFactor) {
+    if(scaleFactor == null){
+        scaleFactor = 1;
+    }
+    var w = video.videoWidth * scaleFactor;
+    var h = video.videoHeight * scaleFactor;
+    var canvas = document.createElement('canvas');
+        canvas.width  = w;
+        canvas.height = h;
+    var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, w, h);
+    return canvas;
+} 
+ 
+/**
+ * Invokes the <code>capture</code> function and attaches the canvas element to the DOM.
+ */
+function shoot(){
+    var video  = document.getElementById(videoId);
+    var output = document.getElementById('output');
+    var canvas = capture(video, scaleFactor);
+        canvas.onclick = function(){
+            window.open(this.toDataURL());
+        };
+    snapshots.unshift(canvas);
+    output.innerHTML = '';
+    for(var i=0; i<4; i++){
+        output.appendChild(snapshots[i]);
+    }
+}
+
+</script>
+</body>
+</html>

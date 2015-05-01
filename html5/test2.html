@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="stuff, to, help, search, engines, not" name="keywords">
+<meta content="What this page is about." name="description">
+<meta content="Display Webcam Stream" name="title">
+<title>Display Webcam Stream</title>
+  
+<script type="text/javascript" src="../js/ajax/libs/jquery/1.4/jquery.min.js"></script>
+
+<style>
+#container {
+    margin: 0px auto;
+    width: 500px;
+    height: 375px;
+    border: 0px #333 solid;
+}
+
+body {
+    text-align: center;
+}
+</style>
+</head>
+  
+<body>
+<div style="text-align: left; ">
+Demonstrate:<br/>
+1) draw from html5 video tag to canvas. Draws per 20ms.<br/>
+2) draw from image to canvas<br/>
+3) draw from canvas to image<br/>
+Note if a canvas got contents from a video, you can not draw the canvas's content to an image
+for security reason [3].
+See: 
+<br/>[1] http://www.w3schools.com/tags/canvas_drawimage.asp 
+<br/>[2] http://stackoverflow.com/questions/923885/capture-html-canvas-as-gif-jpg-png-pdf
+<br/>[3] http://stackoverflow.com/questions/20424279/canvas-todataurl-securityerror
+</div>
+
+<div id="container">
+<p>Video to use (press Play to start the demonstration):</p>
+<video id="video1" controls width="270">
+  <source src="http://www.w3schools.com/tags/mov_bbb.mp4" type='video/mp4' />
+  <source src="http://www.w3schools.com/tags/mov_bbb.ogg" type='video/ogg' />
+  <source src="http://www.w3schools.com/tags/mov_bbb.webm" type='video/webm' />
+</video>
+
+<p>Canvas:</p>
+<canvas id="myCanvas4" width="270" height="135" style="border:1px solid #d3d3d3;background:#ffffff;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<p>Image:</p>
+<img id="myImg" src="" width="270" height="135"/>
+
+
+<p>Video to Image:</p>
+<button id="capture">Capture</button>
+<div id="output"></div>
+
+
+<p>Draw Image on and from canvas:</p>
+
+<img id="scream" src="img_the_scream.jpg"/>
+
+<canvas id="myCanvas" width="250" height="300" style="border:1px solid #d3d3d3;background:#ffffff;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<img id="image0"/>
+
+</div>
+<script>
+
+function drawVideoOnCanvas() {
+    var v=document.getElementById("video1");
+    var c=document.getElementById("myCanvas4");
+    var i; // interval handle.
+    var img = $("#myImg");
+    ctx=c.getContext('2d');
+    v.addEventListener('play',function() {
+        i=window.setInterval(function() {
+            ctx.drawImage(v,5,5,260,125);
+
+            // Got this error in firefox: SecurityError: The operation is insecure.
+            // In chrome the error is:
+            // Uncaught SecurityError: Failed to execute 'toDataURL' on 'HTMLCanvasElement': 
+            // Tainted canvases may not be exported.
+            // see [3].
+            //img.attr("src", c.toDataURL("image/png"));
+            img.attr('src', v);
+        },20);
+    },false);
+    v.addEventListener('pause',function() {window.clearInterval(i);},false);
+    v.addEventListener('ended',function() {clearInterval(i);},false); 
+}
+
+// This is not consistent in Chrome. Sometimes it does not work.
+// But it works reliably in firefox.
+function drawImgOnCanvas() {
+    var c=document.getElementById("myCanvas");
+    var ctx=c.getContext("2d");
+    var img=document.getElementById("scream");
+    ctx.drawImage(img,10,10);
+}
+
+// write from canvas to image.
+function drawImgFromCanvas() {
+    var canvas = document.getElementById("myCanvas");
+    var img    = canvas.toDataURL("image/png");
+    //document.write('<p><br/><br/></p><img src="'+img+'"/>'); // This works too.
+    $('#image0').attr('src', img);
+}
+
+
+drawVideoOnCanvas();
+drawImgOnCanvas();
+drawImgFromCanvas();
+
+
+
+(function() {
+    "use strict";
+ 
+    var video, $output;
+    var scale = 0.25;
+ 
+    var initialize = function() {
+        $output = $("#output");
+        video = $("#video1").get(0);
+        $("#capture").click(captureImage);                
+    };
+ 
+    var captureImage = function() {
+        var canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth * scale;
+        canvas.height = video.videoHeight * scale;
+        canvas.getContext('2d')
+              .drawImage(video, 0, 0, canvas.width, canvas.height);
+ 
+        var img = document.createElement("img");
+        //var img = new Image();
+        //img.setAttribute('crossOrigin', 'anonymous');
+        img.src = canvas.toDataURL();
+        $output.prepend(img);
+    };
+ 
+    $(initialize);            
+ 
+}());
+
+
+</script>
+</body>
+</html>
