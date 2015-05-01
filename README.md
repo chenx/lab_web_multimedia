@@ -15,7 +15,7 @@ For audio, it seems browser still does not support audio capture directly. Plug-
 Ideally, if HTML5 can support audio/video natively, then javascript may suffice, and not need for plug-ins like flash/silverlight.
 
 
-Examples
+Video
 ========
 
 Html5 video
@@ -41,7 +41,20 @@ This actually use flash to capture video in the first place, then post as text o
 Although 24 fps is standard to look real, 10 fps is acceptable in quality. 5 fps not. 
 
 
+Audio
+======
+
+libmp3lame-js
+------------
+- https://github.com/akrennmair/libmp3lame-js
+
+Recordmp3js
+--------
+- https://github.com/nusofthq/Recordmp3js
+
+
 More references
 =====================
 
 - http://www.jqueryrain.com/2013/10/best-jquery-webcam-plugin-example/
+- http://stackoverflow.com/questions/8587882/capture-audio-input-with-flash-or-html5
