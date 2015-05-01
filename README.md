@@ -12,6 +12,9 @@ For video, it used to need plug-in, like adobe flash, or silverlight. Now HTML5 
 
 For audio, it seems browser still does not support audio capture directly. Plug-in like flash is needed.
 
+Ideally, if HTML5 can support audio/video natively, then javascript may suffice, and not need for plug-ins like flash/silverlight.
+
+
 Examples
 ========
 
@@ -36,6 +39,7 @@ From its website: "ScriptCam is a popular JQuery plugin to manipulate webcams. T
 This actually use flash to capture video in the first place, then post as text of about 8K bytes, or draw to a img tag. The size is only 8K bytes, so this is practical to send over network. Say in 10 fps, it's 80k/sec. For a 1GB/120min DVD movie, the rate is 140KB/sec. So these 2 are similar.
 
 Although 24 fps is standard to look real, 10 fps is acceptable in quality. 5 fps not. 
+
 
 More references
 =====================
