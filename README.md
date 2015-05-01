@@ -75,3 +75,4 @@ More references
 - http://stackoverflow.com/questions/1318834/whats-the-status-of-the-html-5-video-tag-and-webcam-integration
 - http://www.webrtc.org/
 - http://www.html5rocks.com/en/tutorials/getusermedia/intro/
+- http://www.macromedia.com/support/documentation/en/flashplayer/help/settings_manager06.html
