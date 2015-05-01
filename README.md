@@ -8,11 +8,11 @@ Since: April 2015
 About
 ========
 
-For video, it used to need plug-in, like adobe flash, or silverlight. Now HTML5 has navigator.getUserMedia feature implemented into some browsers, but seems like there is still a way to go to manipulate data freely as in flash.
-
-For audio, it seems browser still does not support audio capture directly. Plug-in like flash is needed.
+It used to need plug-in, like adobe flash, or silverlight. Now HTML5 has navigator.getUserMedia feature implemented into some browsers. Now although HTML5 can capture video (and audio), but it's still hard to capture the stream and munipulate it, such as sending it to server side and display in another user's computer, such tasks still need plug-ins such as flash.
 
 Ideally, if HTML5 can support audio/video natively, then javascript may suffice, and not need for plug-ins like flash/silverlight.
+
+But it seems that to surpass this, there are issues more than just HTML5 standards and browser technology. Patents, privacy, policies are the obstacles.
 
 
 Video
@@ -58,3 +58,4 @@ More references
 
 - http://www.jqueryrain.com/2013/10/best-jquery-webcam-plugin-example/
 - http://stackoverflow.com/questions/8587882/capture-audio-input-with-flash-or-html5
+- http://stackoverflow.com/questions/1318834/whats-the-status-of-the-html-5-video-tag-and-webcam-integration
