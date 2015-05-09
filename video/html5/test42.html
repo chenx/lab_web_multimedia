@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Display Webcam Stream</title>
+ 
+<style>
+#container {
+    margin: 0px auto;
+    width: 240px;
+    height: 180px;
+    border: 10px #333 solid;
+}
+#videoElement {
+    width: 240px;
+    height: 180px;
+    background-color: #666;
+}
+#canvas {
+    width: 240px;
+    height: 180px;
+   
+    background-color: #CCC;
+}
+</style>
+
+</head>
+ 
+<body>
+From: http://www.purplesquirrels.com.au/2013/08/webcam-to-canvas-or-data-uri-with-html5-and-javascript/
+<br/>
+<br/>
+
+Seems this is what I'm looking for. How does it overcome the security issue?
+It might be that for the previous examples the canvas got content from video,
+so to avoid illegal copy it does not allow that. But here it's going from
+video camera, so it's not considered a security issue.
+But, you could face the camera to a video and record it.
+Anyway, this should be what I want, to go from video cam to dataUrl.
+Well, the size is 345KB, large. Maybe with a smaller size image, the total size is smaller.
+Will see.
+<br/>
+
+<!-- On iOS 6 we can use the file select input with the following attributes to capture an image from the camera -->
+<input id="fileselect" type="file" accept="image/*" capture="camera">
+
+<!-- For devices that support getUserMedia and have a webcam we can display the feed in a video element -->
+<div id="container">
+    <video autoplay id="videoElement">
+     
+    </video>
+</div>
+
+<!-- Selected image will be draw to a canvas -->
+<canvas id="canvas" width="240" height="180" style="display:none;"></canvas>
+
+<!-- Used to capture frame from webcam video feed -->
+<input type="button" value="Save" id="save" />
+
+<!-- Or alternatively added to an img tag -->
+<img id="imgtag" src="" width="240" height="180" alt="capture" />
+
+<p>
+Quality/size: 
+<br/>PGN: 1,0 - 94.5KB
+<br/>JPEG: 1.0 - 13.5KB, 0.8 - 7.3KB. 0.1 - 2.3KB
+<br/>The canvas can be hidden (style="display:none;"), the image can still be drawn.
+<br/>JPEG format size is like 10% of PNG format size. 
+</p>
+
+<!-- For the JavaScript below -->
+<script>
+
+var video = document.querySelector("#videoElement");
+
+// check for getUserMedia support
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+ 
+if (navigator.getUserMedia) {      
+    // get webcam feed if available
+    navigator.getUserMedia({video: true}, handleVideo, videoError);
+}
+ 
+function handleVideo(stream) {
+    // if found attach feed to video element
+    video.src = window.URL.createObjectURL(stream);
+}
+ 
+function videoError(e) {
+    // no webcam found - do something
+}
+var v,canvas,context,w,h;
+var imgtag = document.getElementById('imgtag'); // get reference to img tag
+var sel = document.getElementById('fileselect'); // get reference to file select input element
+
+document.addEventListener('DOMContentLoaded', function(){
+    // when DOM loaded, get canvas 2D context and store width and height of element
+    v = document.getElementById('videoElement');
+    canvas = document.getElementById('canvas');
+    context = canvas.getContext('2d');
+    w = canvas.width;
+    h = canvas.height;
+
+},false);
+
+function draw(v,c,w,h) {
+
+    if(v.paused || v.ended) return false; // if no video, exit here
+
+    context.drawImage(v,0,0,w,h); // draw video feed to canvas
+   
+   //var uri = canvas.toDataURL("image/png"); // convert canvas to data URI
+   var uri = canvas.toDataURL("image/jpeg", 0.8); // 2nd param is for quality.
+   
+   // console.log(uri); // uncomment line to log URI for testing
+   
+   imgtag.src = uri; // add URI to IMG tag src
+}
+
+document.getElementById('save').addEventListener('click',function(e){
+   
+    //draw(v,context,w,h); // when save button is clicked, draw video feed to canvas
+    if (intv == null) capture();
+    else {
+        clearInterval(intv);
+        intv = null;
+    }
+});
+
+var intv = null;
+function capture() {
+    intv = setInterval(function() { draw(v,context,w,h); }, 150);
+}
+
+// for iOS
+
+// create file reader
+var fr;
+
+sel.addEventListener('change',function(e){
+    var f = sel.files[0]; // get selected file (camera capture)
+   
+    fr = new FileReader();
+    fr.onload = receivedData; // add onload event
+
+    fr.readAsDataURL(f); // get captured image as data URI
+})
+
+function receivedData() {          
+    // readAsDataURL is finished - add URI to IMG tag src
+    imgtag.src = fr.result;
+}
+
+</script>
+
+</body>
+</html>
