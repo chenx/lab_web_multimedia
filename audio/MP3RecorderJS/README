@@ -1,0 +1,44 @@
+This is having a hard time to work.
+
+What I want is to continuously process audio input into mp3 and send to server, 
+which then broadcast it to clients to listen to.
+
+The problem is that:
+- once started a recording session, it returns entire recording, not in incremental manner.
+- for this reason you have to create a new recording session by creating new MP3Recorder object.
+- therefore the user must click to start and stop to record a section.
+- each time hit start, browser will prompt for allow permission.
+- the prompt comes from this line:
+  navigator.getUserMedia({audio: true}, handleRecord, handleRecordError);
+
+- otherwise, if initialize it and then repeat handleRecord, it takes a stream param
+  that's not accessible if not being called in getUserMedia.
+- In summary, it's chaotic.
+
+- other problems:
+  - speed is slow, hard to be real-time.
+
+== firefox ==
+record: 1sec
+3.932sec: data size: 4502, prev size: 0 
+
+record: 5sec
+10.961sec: data size: 25606, prev size: 0 
+
+== chrome ==
+
+record 1sec
+0.893sec: data size: 4686, prev size: 0 
+
+record 5sec
+3.477sec: data size: 25654, prev size: 0 
+
+record 10sec
+4.91sec: data size: 52414, prev size: 0 
+
+
+- decide to try this:
+  https://nusofthq.com/blog/recording-mp3-using-only-html5-and-javascript-recordmp3-js/
+  https://github.com/nusofthq/Recordmp3js
+
+5/8/2015

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>MP3 Recorder test</title>
+  </head>
+  <body id="index" onload="">
+    
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/mp3recorder.js"></script>
+    <script type="text/javascript">
+    var audio_context;
+    
+    function __log(e, data) {
+      log.innerHTML += "\n" + e + " " + (data || '');
+    }
+
+    var audio_context; // = new AudioContext;
+    var recorder = $('#recorder');
+    var recorderObject = '';
+    var recorded = false;
+    var intv = null;
+    var init = false;
+    function startRecord() {
+        if (! init) { doInit(); }
+        else {
+            intv = setInterval(doRecord, 1000);
+        }
+    }
+
+    function doInit() {
+      if (init) return;
+      __log('init');
+
+      init = true;
+      try {
+        // webkit shim
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        navigator.getUserMedia = ( navigator.getUserMedia ||
+                         navigator.webkitGetUserMedia ||
+                         navigator.mozGetUserMedia ||
+                         navigator.msGetUserMedia);
+        window.URL = window.URL || window.webkitURL;
+
+        audio_context = new AudioContext;
+        __log('Audio context set up.');
+        __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+      } catch (e) {
+        alert('No web audio support in this browser!');
+      }
+
+      //recorderObject = new MP3Recorder(audio_context, stream, { statusContainer: recorder.find('.status'), statusMethod: 'replace' });
+      //recorder.data('recorderObject', recorderObject);
+      navigator.getUserMedia({audio: true}, handleRecord, handleRecordError);
+    }
+
+    function handleRecord(stream) {
+      try {
+        recorder = $('#recorder');
+        recorderObject = new MP3Recorder(audio_context, stream, { statusContainer: recorder.find('.status'), statusMethod: 'append' });
+        recorder.data('recorderObject', recorderObject);
+        recorderObject.start();
+
+//alert(recorder + ', ' + recorderObject);
+
+        __log(0);
+        intv = setInterval(doRecord, 300);
+      } catch (e) {
+        __log('handleRecord error: ');
+      }
+    }
+
+var url_size = 0;
+    function doRecord() {
+        __log(1);
+
+      recorder = $('#recorder');
+      recorderObject = recorder.data('recorderObject');
+
+      if (recorded) {
+        recorderObject.stop();
+
+        recorderObject.exportMP3(function(base64_mp3_data) {
+         
+          var url = 'data:audio/mp3;base64,' + base64_mp3_data;
+          if (url.length == url_size) return;
+
+          __log('data size: ' + url.length + ', prev size: ' + url_size);
+          url_size = url.length;
+
+          var au = document.getElementById('sound');
+          au.src = url;
+          au.play();
+          
+          //recorderObject.logStatus('');
+        });
+      }
+      recorded = true;
+
+      //recorderObject = new MP3Recorder(audio_context, stream, { statusContainer: recorder.find('.status'), statusMethod: 'append' });
+      //recorder.data('recorderObject', recorderObject);
+// NOTE: seems need a recorderObject does not disgard previous data.
+// To record new section of data, have to create a new object.
+// So, maybe create 1 new object each second, that carries ~ 5KB data; then create new object.
+      recorderObject.start();
+    }
+    function handleRecordError() {
+
+    }
+    function stopRecord() {
+        if (intv == null) return;
+        __log('stop');
+
+        doRecord();
+        recorder = $('#recorder');
+        recorderObject = recorder.data('recorderObject');
+        recorderObject.stop();
+
+        recorded = false;
+        clearInterval(intv);
+        intv = null;
+
+        //recorderObject = recorder.data('recorderObject');
+        //recorderObject.stop();
+    }
+    
+/*
+    $(function() {
+      
+      try {
+        // webkit shim
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        navigator.getUserMedia = ( navigator.getUserMedia ||
+                         navigator.webkitGetUserMedia ||
+                         navigator.mozGetUserMedia ||
+                         navigator.msGetUserMedia);
+        window.URL = window.URL || window.webkitURL;
+      
+        var audio_context = new AudioContext;
+        __log('Audio context set up.');
+        __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+      } catch (e) {
+        alert('No web audio support in this browser!');
+      }
+
+      var recorded = false;
+      var player = $('#sound');
+            
+      $('.recorder .start').on('click', function() {
+        $this = $(this);
+        $recorder = $this.parent();
+//alert($this + ', ' + $recorder); return;
+        
+        navigator.getUserMedia({audio: true}, function(stream) {
+          var recorderObject = new MP3Recorder(audio_context, stream, { statusContainer: $recorder.find('.status'), statusMethod: 'replace' });
+          $recorder.data('recorderObject', recorderObject);
+          
+          recorderObject.start();
+
+          player.hide();
+          recorded = true;
+        }, function(e) { });
+      });
+      
+      $('.recorder .stop').on('click', function() {
+        if (! recorded) {
+            __log('Nothing is recorded.');
+            return;
+        }
+        recorded = false;
+
+        $this = $(this);
+        $recorder = $this.parent();
+        
+        recorderObject = $recorder.data('recorderObject');
+        recorderObject.stop();
+        
+        recorderObject.exportMP3(function(base64_mp3_data) {
+          var url = 'data:audio/mp3;base64,' + base64_mp3_data;
+          //var au  = document.createElement('audio');
+          //au.controls = true;
+          var au = document.getElementById('sound');
+          au.src = url;
+          player.show();
+          __log('data length: ' + url.length);
+          //$recorder.append(au);
+          
+          //recorderObject.logStatus('');
+        });
+
+      });
+      
+    });
+*/
+    </script>
+
+1 sec - 15KB
+6 sec - 30KB
+22 sec - 118KB
+So: ~ 5KB/sec. this is small compared to video, which is 8KB/image/150ms or 50KB/sec.
+  
+    <div id="recorder">
+      Recorder 1
+      <input type="button" class="start"  value="Record" onclick="startRecord();" />
+      <input type="button" class="stop" value="Stop" onclick="stopRecord();" />
+      <p><audio id="sound" controls>Your browser does not support the audio tag</audio></p>
+      <pre class="status"></pre>
+    </div>
+    
+    <pre id="log"></pre>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+libmp3lame_patch.min.js is made from libmp3lame.min.js
+by this change:
+
+A possible fix for the 50% audio problem.
+Look for the following in libmp3lame.js (near the bottom)
+var nread = Module.ccall('lame_encode_buffer_ieee_float', 'number', [ 'number', 'number', 'number', 'number', 'number', 'number' ], [ handle, inbuf_l, inbuf_r, channel_l.length, outbuf, BUFSIZE ]);
+
+Change to
+var nread = Module.ccall('lame_encode_buffer_ieee_float', 'number', [ 'number', 'number', 'number', 'number', 'number', 'number' ], [ handle, inbuf_l, inbuf_r, channel_l.length/2, outbuf, BUFSIZE ]);
+
+See: https://nusofthq.com/blog/recording-mp3-using-only-html5-and-javascript-recordmp3-js/#comment-674
+comment by Nicholas, July 14, 2014 at 12:04 pm
+
+5/7/2015
+X.C.

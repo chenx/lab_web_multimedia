@@ -1,0 +1,91 @@
+- js/mp3Worker.js:21:0 output:
+
+  "Version :" "3.99.5 / " "Mode: 3 / " "Samples: -1 / " "Channels: 1 / " 
+  "Input Samplate: 48000 / " "Output Samplate: 48000 / " "Bitlate :32 / " "VBR :0"
+
+- data size
+  ~ 100KB/sec in blob
+  ~ 4KB/sec in MP3, this is very good for transmission, no problem at all.
+
+- restart issue?
+
+Seems like in firefox only first time hit record it does record.
+Stop and restart record, there is no effect.
+
+In chrome this is not a problem.
+
+Maybe it does not clear recorder properly in firefox.
+Well, after hitting stop I still can hear sound in mic.
+But after the audio tag appears, the mic becomes silent.
+
+  -> well, it seems this is not a restart issue.
+     even don't do anything, after a short time (10-20sec) the page no longer
+     shares the mic. So it's a browser support problem.
+     e.g.
+     1) https://support.mozilla.org/en-US/questions/984179
+     getUserMedia audio stream dies after about 5 seconds.
+     It says: After noticing not all web audio apps suffer from this problem, 
+     I started digging around, and found this behavior to be related to scoping (!).
+
+     2) https://bugzilla.mozilla.org/show_bug.cgi?id=965483
+     it's like barbage collection kicks in and collected the audio.
+
+  -> fix: according to 1) and 2) above, local var is garbage collected, so 
+     need to use global va here. So In function startUserMedia(),
+     change "var input = " to "input =". Now input is a global var.
+     the problem is gone. Firefox can continue recording.
+
+- issue of do not share mic in firefox.
+  
+  In chrome, when choose not to share mic, it'll report "No live audio input"
+  through getUserMedia's error function. 
+  But in firefox, it goes silent, does not report anything.
+
+  Other people got this problem too. See:
+  http://stackoverflow.com/questions/22250070/getusermedia-doesnt-trigger-error-callback-when-you-choose-not-now-in-firefox
+
+== performance ==
+
+-- firefox --
+
+4 sec
+the blob [object Blob] 426028 audio/wav
+Done converting to Mp3. t = 9.814 seconds
+The MP3 data size: 17135
+
+4 sec
+the blob [object Blob] 409644 audio/wav
+Done converting to Mp3. t = 1.248 seconds
+The MP3 data size: 16355
+
+2 sec
+the blob [object Blob] 188460 audio/wav
+Done converting to Mp3. t = 0.606 seconds
+The MP3 data size: 7139
+
+-- chrome --
+
+4 sec
+the blob [object Blob] 491564 audio/wav
+Done converting to Mp3. t = 2.952 seconds
+The MP3 data size: 19945
+
+4 sec
+the blob [object Blob] 466988 audio/wav
+Done converting to Mp3. t = 4.105 seconds
+The MP3 data size: 18805
+
+== setInterval or setTimeout ==
+
+http://stackoverflow.com/questions/729921/settimeout-or-setinterval
+http://javascript.info/tutorial/settimeout-setinterval
+
+Decide to use setTimeout, which is more nice and considerate.
+
+== possibility ==
+
+Could add code in record() function in recorderWorker.js,
+so it exportWAV() after length > threshold.
+This simplifies code in index.html.
+Question is performance.
+

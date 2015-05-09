@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Live input record and playback</title>
+  <style type='text/css'>
+    ul { list-style: none; }
+    #recordingslist audio { display: block; margin-bottom: 10px; }
+    #log {
+        height:300px;
+        width: 700px;
+        overflow:auto;
+        overflow-y: scroll;
+    }
+  </style>
+   <link href="css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+  <h1>Record to MP3 Test</h1>
+
+  <button id='btnRecord' onclick="startRecording();" disabled>record</button>
+  <button id='btnStop' onclick="stopRecording();" disabled>stop</button>
+  
+  <h2>Recordings</h2>
+  <ul id="recordingslist"></ul>
+  <audio id="sound" controls></audio>
+  
+  <h2>Log</h2>
+  <pre id="log"></pre>
+
+  <script>
+
+  function __log(e, data) {
+    var log = document.getElementById('log');
+    log.innerHTML += "\n" + e + " " + (data || '');
+    log.scrollTop = log.scrollHeight;
+  }
+
+  var audio_context;
+  var recorder;
+  var input; // this must be global, so firefox won't garbage collect it and lose sharing of audio.
+  var intv = null;    // for setTimeout().
+  var session_id = 0; // for log purpose.
+
+  function get_time() { // get current time in ms starting from 1970.
+      var d = new Date();
+      return d.getTime();
+  }
+
+  function startUserMedia(stream) {
+    document.getElementById('btnRecord').disabled = false;
+    input = audio_context.createMediaStreamSource(stream);
+    __log('Media stream created.' );
+    __log("input sample rate " +input.context.sampleRate);
+    
+    input.connect(audio_context.destination);
+    __log('Input connected to audio context destination.');
+    
+    recorder = new Recorder(input);
+    __log('Recorder initialised.');
+  }
+
+  function startRecording() {
+    __log('\nstart recording...');
+
+    var button = document.getElementById('btnRecord');
+    button.disabled = true;
+    button.nextElementSibling.disabled = false;
+
+    getRecordingWait();
+  }
+
+  function stopRecording() {
+    __log('Stopped recording.');
+    if (intv != null) { clearTimeout(intv); }
+
+    var button = document.getElementById('btnStop');
+    button.disabled = true;
+    button.previousElementSibling.disabled = false;
+
+    recorder && recorder.stop();
+    //recorder.exportWAV(function(blob){}); // this may be not decodable.
+    recorder.clear();
+  }
+
+  function getRecording() {
+    session_id ++;
+    __log('get recording: ' + session_id);
+
+    recorder && recorder.stop();
+    recorder.exportWAV(function(blob){});
+    recorder.clear();
+
+    // allow a little time for exportWAV to finish.
+    intv = setTimeout(getRecordingWait, 50);
+  }
+  function getRecordingWait() {
+    recorder && recorder.record();
+    intv = setTimeout(getRecording, 1000);
+  }
+
+  window.onload = function init() {
+    try {
+      // webkit shim
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      navigator.getUserMedia = ( navigator.getUserMedia ||
+                       navigator.webkitGetUserMedia ||
+                       navigator.mozGetUserMedia ||
+                       navigator.msGetUserMedia);
+      window.URL = window.URL || window.webkitURL;
+      
+      audio_context = new AudioContext;
+      __log('Audio context set up.');
+      __log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+    } catch (e) {
+      alert('No web audio support in this browser!');
+    }
+    
+    navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
+      __log('No live audio input: ' + e);
+    });
+  };
+  </script>
+	
+   <script src="js/jquery-1.11.0.min.js"></script>	
+  <script src="recordmp3.js"></script>
+</body>
+</html>
