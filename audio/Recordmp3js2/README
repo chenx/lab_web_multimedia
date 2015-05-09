@@ -1,3 +1,14 @@
+
+== ABOUT ==
+
+This version, instead of using setTimeout(), modify recordmp3.js 
+to check buffer size, and do exportWAV() when buffer size is larger
+than MAX_CT * buf_size. This is more clean, less code, with better
+efficency, also can be easily tuned by setting value of MAX_CT.
+
+Use this rather than the previous one using setTimeout().
+
+
 - js/mp3Worker.js:21:0 output:
 
   "Version :" "3.99.5 / " "Mode: 3 / " "Samples: -1 / " "Channels: 1 / " 
